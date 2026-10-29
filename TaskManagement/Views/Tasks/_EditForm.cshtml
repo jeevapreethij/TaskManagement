@@ -1,0 +1,8 @@
+@model TaskManagement.DTOs.UpdateTaskRequest
+
+<form id="editTaskForm" asp-action="Edit" method="post" data-modal-form>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="TaskReference" />
+    <input type="hidden" asp-for="RowVersion" />
+    <partial name="_TaskFields" model="Model" />
+</form>

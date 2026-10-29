@@ -1,0 +1,21 @@
+@model TaskManagement.Models.ModalOptions
+
+<div class="modal fade" id="@Model.Id" tabindex="-1" aria-labelledby="@(Model.Id)Title" aria-hidden="true"
+     data-bs-backdrop="static" data-modal-dialog>
+    <div class="modal-dialog @Model.Size modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="@(Model.Id)Title">@Model.Title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" data-modal-body></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">@Model.CancelText</button>
+                @if (Model.ShowSave)
+                {
+                    <button type="button" class="btn btn-primary" data-modal-save>@Model.SaveText</button>
+                }
+            </div>
+        </div>
+    </div>
+</div>

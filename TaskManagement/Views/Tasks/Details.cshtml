@@ -1,0 +1,18 @@
+@model TaskManagement.Models.TaskItem
+@using TaskManagement.Models
+@{
+    ViewData["Title"] = "Task details";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Task details</h1>
+    <div>
+        <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.TaskReference">Edit</a>
+        <a class="btn btn-outline-secondary" asp-action="Index">Back to list</a>
+    </div>
+</div>
+
+<partial name="_Details" model="Model" />
+
+<partial name="_ModalDialog" model="@(new ModalOptions { Id = "editTaskModal", Title = "Edit task" })" />
+<partial name="_ModalDialog" model="@(new ModalOptions { Id = "reassignModal", Title = "Reassign task", SaveText = "Reassign", Size = "modal-md" })" />

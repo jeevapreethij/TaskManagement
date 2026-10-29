@@ -1,0 +1,9 @@
+@model TaskManagement.Models.TaskItem
+
+<form asp-action="Reassign" method="post" data-modal-form>
+    <input type="hidden" name="TaskReference" value="@Model.TaskReference" />
+    <input type="hidden" name="RowVersion" value="@ViewBag.RowVersion" />
+    <p class="text-muted mb-3">Currently assigned to <strong>@Model.AssignedUserName</strong>.</p>
+    <label class="form-label" for="reassignUser">Reassign to</label>
+    <select id="reassignUser" name="AssignedUserId" class="form-select" asp-items="@((SelectList)ViewBag.Users)"></select>
+</form>

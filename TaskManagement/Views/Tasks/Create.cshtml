@@ -1,0 +1,16 @@
+@model TaskManagement.DTOs.CreateTaskRequest
+@{
+    ViewData["Title"] = "New task";
+}
+
+<h1 class="h3 mb-3">New task</h1>
+
+<div class="col-md-8">
+    <partial name="_CreateForm" model="Model" />
+    <button type="submit" form="createTaskForm" class="btn btn-primary">Create</button>
+    <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

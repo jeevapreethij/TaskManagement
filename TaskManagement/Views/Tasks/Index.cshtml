@@ -1,0 +1,118 @@
+@model TaskManagement.Models.TaskListViewModel
+@using TaskManagement.Models
+@{
+    ViewData["Title"] = "Tasks";
+    var c = Model.Criteria;
+    var r = Model.Result;
+    object PageRoute(int page) => new { c.SearchTerm, c.AssignedUserId, c.Status, c.Priority, c.PageSize, Page = page };
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Tasks</h1>
+    <a class="btn btn-primary" asp-action="Create" data-modal-target="#createTaskModal">New task</a>
+</div>
+
+<form method="get" asp-action="Index" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <input name="SearchTerm" value="@c.SearchTerm" class="form-control" maxlength="100" placeholder="Task ID, reference or title" />
+    </div>
+    <div class="col-md-2">
+        <select name="AssignedUserId" class="form-select">
+            <option value="">All users</option>
+            @foreach (var u in Model.Users)
+            {
+                <option value="@u.UserId" selected="@(c.AssignedUserId == u.UserId)">@u.FullName</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="Status" class="form-select">
+            <option value="">All statuses</option>
+            @foreach (var s in TaskConstants.Statuses)
+            {
+                <option value="@s" selected="@(s == c.Status)">@s</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="Priority" class="form-select">
+            <option value="">All priorities</option>
+            @foreach (var p in TaskConstants.Priorities)
+            {
+                <option value="@p" selected="@(p == c.Priority)">@p</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2 d-grid d-md-flex gap-2">
+        <button type="submit" class="btn btn-outline-primary">Search</button>
+        <a class="btn btn-outline-secondary" asp-action="Index">Reset</a>
+    </div>
+</form>
+
+<div asp-validation-summary="All" class="text-danger"></div>
+
+@if (r.Items.Count == 0)
+{
+    <div class="alert alert-info">No tasks found.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Due date</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Assigned to</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var t in r.Items)
+                {
+                    var overdue = t.DueDate.Date < DateTime.Today && t.Status != "Closed";
+                    <tr class="@(overdue ? "table-danger" : "")">
+                        <td>@t.TaskId</td>
+                        <td>@t.Title</td>
+                        <td>@t.DueDate.ToString("yyyy-MM-dd") @if (overdue) { <span class="badge bg-danger">Overdue</span> }</td>
+                        <td><span class="badge @BadgeStyles.Priority(t.Priority)">@t.Priority</span></td>
+                        <td><span class="badge @BadgeStyles.Status(t.Status)">@t.Status</span></td>
+                        <td>@t.AssignedUserName</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@t.TaskReference" data-modal-target="#detailsModal">Details</a>
+                            <a class="btn btn-sm btn-outline-primary" asp-action="Reassign" asp-route-id="@t.TaskReference" data-modal-target="#reassignModal">Reassign</a>
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@t.TaskReference" data-modal-target="#editTaskModal">Edit</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (r.TotalPages > 1)
+    {
+        <nav aria-label="Task pages">
+            <ul class="pagination">
+                <li class="page-item @(r.Page <= 1 ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Index", PageRoute(r.Page - 1))">Previous</a>
+                </li>
+                <li class="page-item disabled"><span class="page-link">Page @r.Page of @r.TotalPages (@r.TotalCount tasks)</span></li>
+                <li class="page-item @(r.Page >= r.TotalPages ? "disabled" : "")">
+                    <a class="page-link" href="@Url.Action("Index", PageRoute(r.Page + 1))">Next</a>
+                </li>
+            </ul>
+        </nav>
+    }
+}
+
+<partial name="_ModalDialog" model="@(new ModalOptions { Id = "createTaskModal", Title = "New task" })" />
+<partial name="_ModalDialog" model="@(new ModalOptions { Id = "editTaskModal", Title = "Edit task" })" />
+<partial name="_ModalDialog" model="@(new ModalOptions { Id = "detailsModal", Title = "Task details", ShowSave = false, CancelText = "Close" })" />
+<partial name="_ModalDialog" model="@(new ModalOptions { Id = "reassignModal", Title = "Reassign task", SaveText = "Reassign", Size = "modal-md" })" />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

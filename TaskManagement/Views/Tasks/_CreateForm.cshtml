@@ -1,0 +1,6 @@
+@model TaskManagement.DTOs.CreateTaskRequest
+
+<form id="createTaskForm" asp-action="Create" method="post" data-modal-form>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <partial name="_TaskFields" model="Model" />
+</form>

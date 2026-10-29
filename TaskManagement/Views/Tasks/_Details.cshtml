@@ -1,0 +1,44 @@
+@model TaskManagement.Models.TaskItem
+@using TaskManagement.Models
+@{
+    var overdue = Model.DueDate.Date < DateTime.Today && Model.Status != "Closed";
+    var rowVersion = Convert.ToBase64String(Model.RowVersion);
+}
+
+<div id="ajax-alert" class="alert d-none" role="alert"></div>
+
+<h2 class="h4 mb-3">@Model.Title
+    <a class="btn btn-sm btn-outline-secondary ms-2" asp-action="Edit" asp-route-id="@Model.TaskReference" data-modal-target="#editTaskModal">Edit</a>
+</h2>
+
+<dl class="row">
+    <dt class="col-sm-3">Task ID</dt><dd class="col-sm-9">@Model.TaskId</dd>
+    <dt class="col-sm-3">Reference</dt><dd class="col-sm-9">@Model.TaskReference</dd>
+    <dt class="col-sm-3">Description</dt><dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Description) ? "—" : Model.Description)</dd>
+    <dt class="col-sm-3">Due date</dt>
+    <dd class="col-sm-9">@Model.DueDate.ToString("yyyy-MM-dd") @if (overdue) { <span class="badge bg-danger">Overdue</span> }</dd>
+    <dt class="col-sm-3">Priority</dt><dd class="col-sm-9"><span class="badge @BadgeStyles.Priority(Model.Priority)">@Model.Priority</span></dd>
+    <dt class="col-sm-3">Status</dt><dd class="col-sm-9"><span class="badge @BadgeStyles.Status(Model.Status)">@Model.Status</span></dd>
+    <dt class="col-sm-3">Assigned to</dt>
+    <dd class="col-sm-9">
+        @Model.AssignedUserName @if (!Model.AssignedUserIsActive) { <span class="badge bg-secondary">Inactive</span> }
+        <a class="btn btn-sm btn-outline-primary ms-2" asp-action="Reassign" asp-route-id="@Model.TaskReference" data-modal-target="#reassignModal">Reassign</a>
+    </dd>
+    <dt class="col-sm-3">Created (UTC)</dt><dd class="col-sm-9">@Model.CreatedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+    <dt class="col-sm-3">Updated (UTC)</dt><dd class="col-sm-9">@(Model.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "—")</dd>
+</dl>
+
+<form asp-action="UpdateStatus" method="post" data-ajax-form class="border rounded p-3">
+    <input type="hidden" name="TaskReference" value="@Model.TaskReference" />
+    <input type="hidden" name="RowVersion" value="@rowVersion" />
+    <label class="form-label" for="status">Update status</label>
+    <div class="input-group">
+        <select id="status" name="Status" class="form-select">
+            @foreach (var s in TaskConstants.Statuses)
+            {
+                <option value="@s" selected="@(s == Model.Status)">@s</option>
+            }
+        </select>
+        <button type="submit" class="btn btn-primary">Update</button>
+    </div>
+</form>
